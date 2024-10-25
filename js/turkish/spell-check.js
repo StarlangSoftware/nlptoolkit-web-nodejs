@@ -4,7 +4,7 @@ import {Sentence} from "nlptoolkit-corpus";
 
 function createSpellCheckTable(sentence){
     let s = new Sentence(sentence);
-    let spellCheckedSentence = simpleSpellChecker.spellCheck(new Sentence(sentence));
+    let spellCheckedSentence = simpleSpellChecker.spellCheck(s);
     let display = "<table> <tr> <th>Word</th> <th>Correct</th> </tr>";
     for (let i = 0; i < spellCheckedSentence.wordCount(); i++) {
         display = display + "<tr><td>" + s.getWord(i).getName() + "</td>"
