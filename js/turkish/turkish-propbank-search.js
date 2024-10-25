@@ -1,13 +1,12 @@
+import {FramesetList} from "nlptoolkit-propbank";
+
+let turkishPropBank = new FramesetList()
+
 function createPropBankTable(synsetId){
     let display = "<table> <tr> <th>Arg</th> <th>Function</th> <th>Description</th> </tr>";
-    for (let i = 0; i < turkishPropBank.length; i++) {
-        let frameSet = turkishPropBank[i];
-        if (frameSet["id"] === synsetId) {
-            let args = frameSet["args"]
-            for (let arg of args) {
-                display = display + "<tr><td>" + arg["arg"] + "</td><td>" + arg["function"] + "</td><td>" + arg["description"] + "</td></tr>"
-            }
-        }
+    let frameSet = turkishPropBank.getFrameSet(synsetId)
+    for (let arg of frameSet.getFramesetArguments()) {
+        display = display + "<tr><td>" + arg.getArgumentType() + "</td><td>" + arg.getFunction() + "</td><td>" + arg.getDefinition() + "</td></tr>"
     }
     display = display + "</table>"
     return display
@@ -15,15 +14,10 @@ function createPropBankTable(synsetId){
 
 function createPropBankTableForMultipleSynsets(synsets){
     let display = "<table> <tr> <th>Id</th> <th>Definition</th> <th>Arg</th> <th>Function</th> <th>Description</th> </tr>";
-    for (let synset of synsets) {
-        for (let i = 0; i < turkishPropBank.length; i++) {
-            let frameSet = turkishPropBank[i];
-            if (frameSet["id"] === synset["id"]) {
-                let args = frameSet["args"]
-                for (let arg of args) {
-                    display = display + "<tr><td>" + synset["id"] + "</td><td>" + synset["definition"] + "</td><td>" + arg["arg"] + "</td><td>" + arg["function"] + "</td><td>" + arg["description"] + "</td></tr>"
-                }
-            }
+    for (let synSet of synsets) {
+        let frameSet = turkishPropBank.getFrameSet(synSet.getId())
+        for (let arg of frameSet.getFramesetArguments()) {
+            display = display + "<tr><td>" + synSet.getId() + "</td><td>" + synSet.getDefinition() + "</td><td>" + arg.getArgumentType() + "</td><td>" + arg.getFunction() + "</td><td>" + arg.getDefinition() + "</td></tr>"
         }
     }
     display = display + "</table>"

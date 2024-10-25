@@ -1,35 +1,18 @@
-function displaySentiment(sentiNetObject){
-    if (sentiNetObject["pscore"] > sentiNetObject["nscore"]){
-        return "Positive with score " + sentiNetObject["pscore"]
-    } else {
-        if (sentiNetObject["pscore"] < sentiNetObject["nscore"]){
-            return "Negative with score " + sentiNetObject["nscore"]
-        } else {
-            return "Neutral"
-        }
-    }
-}
+import {SentiLiteralNet, SentiNet} from "nlptoolkit-sentinet";
+
+let sentiNet = new SentiNet();
+let sentiLiteralNet = new SentiLiteralNet();
 
 document.getElementById('wordSearch').addEventListener('submit', function (event) {
     event.preventDefault();
     const word = document.getElementById('word').value;
-    for (let i = 0; i < turkishSentiLiteralNet.length; i++) {
-        const sentiNetObject = turkishSentiLiteralNet[i];
-        if (sentiNetObject["word"] === word) {
-            document.getElementById("result").innerHTML = displaySentiment(sentiNetObject);
-            break;
-        }
-    }
+    let sentiLiteral = sentiLiteralNet.getSentiLiteral(word)
+    document.getElementById("result").innerHTML = sentiLiteral.getPolarity();
 })
 
 document.getElementById('idSearch').addEventListener('submit', function (event) {
     event.preventDefault();
-    const synsetId = document.getElementById('synset_id').value;
-    for (let i = 0; i < turkishSentiNet.length; i++) {
-        const sentiNetObject = turkishSentiNet[i];
-        if (sentiNetObject["id"] === synsetId) {
-            document.getElementById("result").innerHTML = displaySentiment(sentiNetObject);
-            break;
-        }
-    }
+    const synSetId = document.getElementById('synset_id').value;
+    let sentiSynSet = sentiNet.getSentiSynSet(synSetId)
+    document.getElementById("result").innerHTML = sentiSynSet.getPolarity();
 })

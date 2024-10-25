@@ -1,26 +1,34 @@
+import {WordNet} from "nlptoolkit-wordnet";
+import {FrameNet} from "nlptoolkit-framenet";
+
+function displayLexicalUnits(display, frame){
+    for (let j = 0;  j < frame.lexicalUnitSize(); j++) {
+        let lexicalUnit = frame.getLexicalUnit(j)
+        let synset = turkishWordNet.getSynSetWithId(lexicalUnit)
+        if (synset != null) {
+            display = display + "<tr><td>" + synset.getId() + "</td><td>";
+            display = createSynonym(display, -1, synset) + "</td><td>" + synset.getDefinition() + "</td></tr>"
+        }
+    }
+    return display
+}
+
 function createFrameTable(frameName) {
     let display = "Lexical Units <br> <table> <tr> <th>Id</th> <th>Words</th> <th>Definition</th> </tr>";
-    for (let i = 0; i < turkishFrameNet.length; i++) {
-        let frame = turkishFrameNet[i];
-        if (frame["frame"] === frameName) {
-            let lexicalUnits = frame["lexicalUnits"];
-            for (let lexicalUnit of lexicalUnits) {
-                let synset = getSynsetWithIdBinarySearch(lexicalUnit, turkishWordNet)
-                if (synset != null) {
-                    display = display + "<tr><td>" + synset["id"] + "</td><td>";
-                    display = createSynonym(display, -1, synset["words"]) + "</td><td>" + synset["definition"] + "</td></tr>"
-                }
-            }
+    for (let i = 0; i < frameNet.size(); i++) {
+        let frame = frameNet.getFrame(i)
+        if (frame.getName() === frameName) {
+            display = displayLexicalUnits(display, frame)
             break;
         }
     }
     display = display + "</table> <br>"
     display = display + "Frame Elements <br> <table> <th>Element</th> </tr>";
-    for (let i = 0; i < turkishFrameNet.length; i++) {
-        let frame = turkishFrameNet[i];
-        if (frame["frame"] === frameName) {
-            let frameElements = frame["frameElements"];
-            for (let frameElement of frameElements) {
+    for (let i = 0; i < frameNet.size(); i++) {
+        let frame = frameNet.getFrame(i)
+        if (frame.getName() === frameName) {
+            for (let j = 0; j < frame.frameElementSize(); j++) {
+                let frameElement = frame.getFrameElement(j)
                 display = display + "<tr><td>" + frameElement + "</td></tr>"
             }
             break;
@@ -33,18 +41,10 @@ function createFrameTable(frameName) {
 function createTableOfFrames(frames) {
     let display = "<table> <tr> <th>Frame</th> <th>Lexical Units</th> <th>Frame Elements</th> </tr>";
     for (let frame of frames) {
-        display = display + "<tr><td>" + frame["frame"] + "</td><td><table> <tr> <th>Id</th> <th>Words</th> <th>Definition</th> </tr>";
-        let lexicalUnits = frame["lexicalUnits"];
-        for (let lexicalUnit of lexicalUnits) {
-            let synset = getSynsetWithIdBinarySearch(lexicalUnit, turkishWordNet)
-            if (synset != null) {
-                display = display + "<tr><td>" + synset["id"] + "</td><td>";
-                display = createSynonym(display, -1, synset["words"]) + "</td><td>" + synset["definition"] + "</td></tr>"
-            }
-        }
-        display = display + "</table></td><td>"
-        let frameElements = frame["frameElements"];
-        for (let frameElement of frameElements) {
+        display = display + "<tr><td>" + frame.getName() + "</td><td><table> <tr> <th>Id</th> <th>Words</th> <th>Definition</th> </tr>";
+        display = displayLexicalUnits(display, frame) + "</table></td><td>"
+        for (let j = 0; j < frame.frameElementSize(); j++) {
+            let frameElement = frame.getFrameElement(j)
             display = display + " " + frameElement;
         }
         display = display + "</td></tr>"
@@ -53,24 +53,9 @@ function createTableOfFrames(frames) {
     return display
 }
 
-function getFramesForSynSet(synset) {
-    let result = []
-    for (let i = 0; i < turkishFrameNet.length; i++) {
-        let frame = turkishFrameNet[i];
-        let lexicalUnits = frame["lexicalUnits"];
-        for (let lexicalUnit of lexicalUnits) {
-            if (lexicalUnit === synset) {
-                result.push(frame)
-                break;
-            }
-        }
-    }
-    return result
-}
-
 function frameListContains(frames, frame){
     for (let current of frames) {
-        if (current["frame"] === frame["frame"]){
+        if (current.getName() === frame.getName()){
             return true
         }
     }
@@ -80,7 +65,7 @@ function frameListContains(frames, frame){
 function getFramesForSynSets(synsets) {
     let result = []
     for (let synset of synsets) {
-        let current = getFramesForSynSet(synset["id"]);
+        let current = frameNet.getFrames(synset.getId());
         for (let frame of current) {
             if (!frameListContains(result, frame)){
                 result.push(frame)
@@ -89,6 +74,9 @@ function getFramesForSynSets(synsets) {
     }
     return result
 }
+
+let turkishWordNet = new WordNet();
+let frameNet = new FrameNet()
 
 document.getElementById('frameSearch').addEventListener('submit', function (event) {
     event.preventDefault();
@@ -99,7 +87,7 @@ document.getElementById('frameSearch').addEventListener('submit', function (even
 document.getElementById('verbSearch').addEventListener('submit', function (event) {
     event.preventDefault();
     const verbName = document.getElementById('verb_name').value;
-    let synsets = getSynsetsWithWord(verbName, turkishWordNet)
+    let synsets = turkishWordNet.getSynSetsWithLiteral(verbName)
     let frames = getFramesForSynSets(synsets)
     document.getElementById("result").innerHTML = createTableOfFrames(frames)
 })
@@ -107,6 +95,6 @@ document.getElementById('verbSearch').addEventListener('submit', function (event
 document.getElementById('idSearch').addEventListener('submit', function (event) {
     event.preventDefault();
     const verbId = document.getElementById('verb_id').value;
-    let frames = getFramesForSynSet(verbId)
+    let frames = frameNet.getFrames(verbId)
     document.getElementById("result").innerHTML = createTableOfFrames(frames)
 })

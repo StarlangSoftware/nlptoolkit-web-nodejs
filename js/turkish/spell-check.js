@@ -1,20 +1,16 @@
+import {FsmMorphologicalAnalyzer} from "nlptoolkit-morphologicalanalysis";
+import {SimpleSpellChecker} from "nlptoolkit-spellchecker";
+import {Sentence} from "nlptoolkit-corpus";
+
 function createSpellCheckTable(sentence){
-    let words = sentence.toLowerCase().split(' ');
+    let s = new Sentence(sentence);
+    let spellCheckedSentence = simpleSpellChecker.spellCheck(new Sentence(sentence));
     let display = "<table> <tr> <th>Word</th> <th>Correct</th> </tr>";
-    for (let word of words) {
-        display = display + "<tr><td>" + word + "</td>"
-        let found = false
-        for (let i = 0; i < spellDictionary.length; i++) {
-            const wordObject = spellDictionary[i];
-            const wrong = wordObject["wrong"]
-            const correct = wordObject["correct"]
-            if (word === wrong){
-                found = true
-                display = display + "<td style=\"color:Red;\">" + correct + "</td>"
-                break;
-            }
-        }
-        if (!found){
+    for (let i = 0; i < spellCheckedSentence.wordCount(); i++) {
+        display = display + "<tr><td>" + s.getWord(i).getName() + "</td>"
+        if (s.getWord(i).getName() !== spellCheckedSentence.getWord(i).getName()) {
+            display = display + "<td style=\"color:Red;\">" + spellCheckedSentence.getWord(i).getName() + "</td>"
+        } else {
             display = display + "<td>" + word + "</td>"
         }
         display = display + "</tr>"
@@ -22,6 +18,9 @@ function createSpellCheckTable(sentence){
     display = display + "</table>"
     return display
 }
+
+let fsm = new FsmMorphologicalAnalyzer()
+let simpleSpellChecker = new SimpleSpellChecker(fsm)
 
 document.getElementById('spellCheck').addEventListener('submit', function (event) {
     event.preventDefault();
