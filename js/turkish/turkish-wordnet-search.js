@@ -8,7 +8,7 @@ function include(file) {
     document.getElementsByTagName('head').item(0).appendChild(script);
 }
 
-include('../js/wordnet-search.js');
+include('js/wordnet-search.js');
 let turkishWordNet = new WordNet();
 let years = ["1901", "1944", "1955", "1959", "1966", "1969", "1974", "1983", "1988", "1998"]
 let turkishWordNets = new WordNet[years.length]

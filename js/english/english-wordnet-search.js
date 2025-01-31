@@ -6,7 +6,7 @@ function include(file) {
     document.getElementsByTagName('head').item(0).appendChild(script);
 }
 
-include('../js/wordnet-search.js');
+include('js/wordnet-search.js');
 let englishWordNet = new WordNet("english_wordnet_version_31.xml");
 
 document.getElementById('wordSearch').addEventListener('submit', function (event) {
