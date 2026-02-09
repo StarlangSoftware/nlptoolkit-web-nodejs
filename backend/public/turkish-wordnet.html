@@ -85,15 +85,27 @@
 </style>
 <head>
     <meta charset="UTF-8">
-    <title>Turkish Morphological Lexicon</title>
+    <title>Turkish WordNets</title>
 </head>
 <body>
-<form id="morphologySearch">
+<form id="wordSearch">
     <label for="word">Word:</label>
     <input type="text" id="word" name="word" required><br><br>
-    <input type="submit" value="Find Morphology">
+    <input type="submit" value="Find Word">
+</form>
+<br>
+<form id="synonymSearch">
+    <label for="synonymWord">Word:</label>
+    <input type="text" id="synonymWord" name="synonymWord" required><br><br>
+    <input type="submit" value="Find Synonym">
+</form>
+<br>
+<form id="idSearch">
+    <label for="synset_id">SynSet Id:</label>
+    <input type="text" id="synset_id" name="synset_id" required><br><br>
+    <input type="submit" value="Find SynSet">
 </form>
 <p id="result"></p>
-<script type="module" src="js/turkish/morphology-search.js"></script>
+<script type="module" src="../js/turkish/turkish-wordnet-search.js"></script>
 </body>
 </html>

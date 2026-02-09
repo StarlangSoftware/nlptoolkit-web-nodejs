@@ -85,21 +85,15 @@
 </style>
 <head>
     <meta charset="UTF-8">
-    <title>Turkish PropBank</title>
+    <title>Turkish Spell Checker</title>
 </head>
 <body>
-<form id="verbSearch">
-    <label for="verb_name">Verb:</label>
-    <input type="text" id="verb_name" name="verb_name" required><br><br>
-    <input type="submit" value="Find Verb">
-</form>
-<br>
-<form id="idSearch">
-    <label for="verb_id">Verb SynSet Id:</label>
-    <input type="text" id="verb_id" name="verb_id" required><br><br>
-    <input type="submit" value="Find Verb">
+<form id="spellCheck">
+    <label for="sentence">Sentence:</label>
+    <input type="text" id="sentence" name="sentence" size="100" required><br><br>
+    <input type="submit" value="Spell Check">
 </form>
 <p id="result"></p>
-<script type="module" src="js/turkish/turkish-propbank-search.js"></script>
+<script type="module" src="../js/turkish/spell-check.js"></script>
 </body>
 </html>

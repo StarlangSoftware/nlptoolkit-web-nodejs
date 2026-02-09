@@ -85,15 +85,21 @@
 </style>
 <head>
     <meta charset="UTF-8">
-    <title>Turkish Asciifier</title>
+    <title>Turkish PropBank</title>
 </head>
 <body>
-<form id="asciifier">
-    <label for="sentence">Sentence:</label>
-    <input type="text" id="sentence" name="sentence" size="100" required><br><br>
-    <input type="submit" value="Asciifier">
+<form id="verbSearch">
+    <label for="verb_name">Verb:</label>
+    <input type="text" id="verb_name" name="verb_name" required><br><br>
+    <input type="submit" value="Find Verb">
+</form>
+<br>
+<form id="idSearch">
+    <label for="verb_id">Verb SynSet Id:</label>
+    <input type="text" id="verb_id" name="verb_id" required><br><br>
+    <input type="submit" value="Find Verb">
 </form>
 <p id="result"></p>
-<script type="module" src="js/turkish/asciifier.js"></script>
+<script type="module" src="../js/turkish/turkish-propbank-search.js"></script>
 </body>
 </html>
