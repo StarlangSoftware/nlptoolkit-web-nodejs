@@ -18,9 +18,14 @@ import {LongestRootFirstDisambiguation} from "nlptoolkit-morphologicaldisambigua
 import {NaivePosTagger} from "nlptoolkit-postagger";
 import {PosTaggedCorpus} from "nlptoolkit-postagger";
 import {FrameNet} from "nlptoolkit-framenet";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 const turkishDictionary = new TxtDictionary();
 const fsm = new FsmMorphologicalAnalyzer()
@@ -48,13 +53,15 @@ app.use(express.json());
 app.use(helmet());
 
 app.use(cors({
-    origin: ["http://104.247.163.162/nlptoolkit2"]
+    origin: ["http://104.247.163.162"]
 }));
 
 app.use("/api", rateLimit({
     windowMs: 60 * 1000,
     max: 60
 }));
+
+app.use(express.static(__dirname));
 
 app.listen(PORT, () => {
     console.log(`NLP backend running on port ${PORT}`);
@@ -65,106 +72,109 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
 });
 
-app.get("/api/turkish-dictionary-word-search/:word", (req, res) => {
+app.get("/turkish-dictionary-word-search/:word", (req, res) => {
     const word = req.params.word;
     let wordName = word
+    let lastChar = word.slice(-1);
+    let lastTwo = word.slice(-2);
+    let exceptLastTwo = word.slice(0, word.length - 2);
+    let secondLast = lastTwo[0];
     let wordObject = turkishDictionary.getWord(word)
     let display;
     if (wordObject !== undefined && wordObject instanceof TxtWord) {
-        display = word + ":";
         if (wordObject.nounSoftenDuringSuffixation()) {
-            if (wordName.endsWith("ç")) {
-                display = wordName + "(cı):"
-            } else {
-                if (wordName.endsWith("k")) {
+            switch (lastChar) {
+                case "ç":
+                    display = wordName + "(cı):"
+                    break;
+                case "k":
                     display = wordName + "(ğı):"
-                } else {
-                    if (wordName.endsWith("t")) {
-                        display = wordName + "(dı):"
-                    } else {
-                        display = wordName + "(bı):"
-                    }
-                }
+                    break;
+                case "t":
+                    display = wordName + "(dı):"
+                    break;
+                case "p":
+                    display = wordName + "(bı):"
+                    break;
             }
         } else {
             if (wordObject.isPortmanteauEndingWithSI()) {
-                display = wordName.substring(0, wordName.length - 2) + "(" + wordName.substring(wordName.length - 2) + "):";
+                display = exceptLastTwo + "(" + lastTwo + "):";
             } else {
                 if (wordObject.isPortmanteauFacedSoftening()) {
-                    if (wordName.substring(0, wordName.length - 1).endsWith("ğ")) {
-                        display = wordName.substring(0, wordName.length - 2) + "k(" + wordName.substring(wordName.length - 2) + "):";
+                    switch (secondLast) {
+                        case "ğ":
+                            display = exceptLastTwo + "k(" + lastTwo + "):";
+                            break;
+                        case "c":
+                            display = exceptLastTwo + "c(" + lastTwo + "):";
+                            break;
+                        case "b":
+                            display = exceptLastTwo + "p(" + lastTwo + "):";
+                            break;
+                        case "d":
+                            display = exceptLastTwo + "t(" + lastTwo + "):";
+                            break;
+                    }
+                } else {
+                    if (wordObject.duplicatesDuringSuffixation()){
+                        display = wordName + "(" + lastChar + lastChar + "ı):"
                     } else {
-                        if (wordName.substring(0, wordName.length - 1).endsWith("c")) {
-                            display = wordName.substring(0, wordName.length - 2) + "ç(" + wordName.substring(wordName.length - 2) + "):";
+                        if (wordObject.endingKChangesIntoG()){
+                            display = wordName + "(gi):"
                         } else {
-                            if (wordName.substring(0, wordName.length - 1).endsWith("b")) {
-                                display = wordName.substring(0, wordName.length - 2) + "p(" + wordName.substring(wordName.length - 2) + "):";
+                            if (wordObject.vowelAChangesToIDuringYSuffixation()){
+                                display = wordName.endsWith("a") ? wordName + "(ıyor):" : wordName + "(iyor):";
                             } else {
-                                if (wordName.substring(0, wordName.length - 1).endsWith("d")) {
-                                    display = wordName.substring(0, wordName.length - 2) + "t(" + wordName.substring(wordName.length - 2) + "):";
-                                }
+                                display = word + ":";
                             }
                         }
                     }
                 }
             }
         }
-        if (wordObject.duplicatesDuringSuffixation()) {
-            display = wordName + "(" + wordName.at(wordName.length - 1) + wordName.at(wordName.length - 1) + "ı):"
-        }
-        if (wordObject.endingKChangesIntoG()) {
-            display = wordName + "(gi):"
-        }
-        if (wordObject.vowelAChangesToIDuringYSuffixation()) {
-            display = wordName.endsWith("a") ? wordName + "(ıyor):" : wordName + "(iyor):";
-        }
-        let firstTime = true;
+        let flags = [];
         if (wordObject.isProperNoun()) {
-            display = display + " Özel İsim"
-            firstTime = false
+            flags.push("Özel İsim");
+        }
+        if (wordObject.isPlural()) {
+            flags.push("Çoğul");
         }
         if (wordObject.isNominal()) {
-            if (firstTime) {
-                display = wordObject.isPlural() ? display + " Çoğul Cins İsim" : display + " Cins İsim";
-            } else {
-                display = wordObject.isPlural() ? display + ", Çoğul Cins İsim" : display + ", Cins İsim";
-            }
-            firstTime = false
+            flags.push("Cins İsim");
         }
         if (wordObject.isPortmanteau()) {
-            display = firstTime ? display + " Bileşik İsim" : display + ", Bileşik İsim";
-            firstTime = false
+            flags.push("Bileşik İsim");
         }
         if (wordObject.isAbbreviation()) {
-            display = firstTime ? display + " Kısaltma" : display + ", Kısaltma";
-            firstTime = false
+            flags.push("Kısaltma");
         }
         if (wordObject.isVerb()) {
-            display = firstTime ? display + " Fiil" : display + ", Fiil";
-            firstTime = false
+            flags.push("Fiil");
         }
         if (wordObject.isAdjective() || wordObject.isPureAdjective()) {
-            display = firstTime ? display + " Sıfat" : display + ", Sıfat";
-            firstTime = false
+            flags.push("Sıfat");
         }
         if (wordObject.isAdverb()) {
-            display = firstTime ? display + " Zarf" : display + ", Zarf";
-            firstTime = false
+            flags.push("Zarf");
         }
         if (wordObject.isPronoun()) {
-            display = firstTime ? display + " Zamir" : display + ", Zamir";
-            firstTime = false
+            flags.push("Zamir");
         }
         if (wordObject.isPostP()) {
-            display = firstTime ? display + " Edat" : display + ", Edat";
-            firstTime = false
+            flags.push("Edat");
         }
         if (wordObject.isNumeral()) {
-            display = firstTime ? display + " Sayı" : display + ", Sayı";
-            firstTime = false
+            flags.push("Sayı");
         }
         if (wordObject.isConjunction()) {
-            display = firstTime ? display + " Bağlaç" : display + ", Bağlaç";
+            flags.push("Bağlaç");
+        }
+        if (flags.length > 0){
+            display = display + " " + flags[0];
+            for (let i = 1; i < flags.length; i++) {
+                display = display + ", " + flags[i];
+            }
         }
         if (wordObject.notObeysVowelHarmonyDuringAgglutination()) {
             display = display + "<p> Bu kelime ünlü uyumuna uymaz </p>";
