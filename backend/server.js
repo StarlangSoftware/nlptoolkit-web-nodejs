@@ -3,7 +3,6 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import NodeCache from "node-cache";
 import {TxtDictionary} from "nlptoolkit-dictionary";
 import {TxtWord} from "nlptoolkit-dictionary";
 import {FramesetList} from "nlptoolkit-propbank";
@@ -107,7 +106,7 @@ app.get("/turkish-dictionary-word-search/:word", (req, res) => {
                             display = exceptLastTwo + "k(" + lastTwo + "):";
                             break;
                         case "c":
-                            display = exceptLastTwo + "c(" + lastTwo + "):";
+                            display = exceptLastTwo + "ç(" + lastTwo + "):";
                             break;
                         case "b":
                             display = exceptLastTwo + "p(" + lastTwo + "):";
@@ -179,6 +178,21 @@ app.get("/turkish-dictionary-word-search/:word", (req, res) => {
         if (wordObject.notObeysVowelHarmonyDuringAgglutination()) {
             display = display + "<p> Bu kelime ünlü uyumuna uymaz </p>";
         }
+    } else {
+        display = "Kelime bulunamadı"
+    }
+    const result = {word, display};
+    res.json(result);
+});
+
+app.get("/turkish-morphology-search/:word", (req, res) => {
+    const word = req.params.word;
+    let txtWord = turkishDictionary.getWord(word)
+    let display
+    if (txtWord !== undefined && txtWord instanceof TxtWord) {
+        display = txtWord.getMorphology();
+    } else {
+        display = word;
     }
     const result = {word, display};
     res.json(result);
