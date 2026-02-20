@@ -48,3 +48,23 @@ if (frameNetIdSearchButton) {
         document.getElementById("frameNetResult").innerHTML = data.display;
     });
 }
+let propBankVerbSearchButton = document.getElementById('propBankVerbSearch');
+if (propBankVerbSearchButton) {
+    propBankVerbSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('verbName').value;
+        const res = await fetch(`/turkish-propbank-verb-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("propBankResult").innerHTML = data.display;
+    });
+}
+let propBankIdSearchButton = document.getElementById('propBankIdSearch');
+if (propBankIdSearchButton) {
+    propBankIdSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('verbId').value;
+        const res = await fetch(`/turkish-propbank-verb-id-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("propBankResult").innerHTML = data.display;
+    });
+}

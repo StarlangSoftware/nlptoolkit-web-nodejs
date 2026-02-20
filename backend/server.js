@@ -182,6 +182,30 @@ function getFramesForSynSets(synsets) {
     return result
 }
 
+function createPropBankTable(synsetId){
+    let display = "<table> <tr> <th>Arg</th> <th>Function</th> <th>Description</th> </tr>";
+    let frameSet = turkishPropBank.getFrameSet(synsetId)
+    for (let arg of frameSet.getFramesetArguments()) {
+        display = display + "<tr><td>" + arg.getArgumentType() + "</td><td>" + arg.getFunction() + "</td><td>" + arg.getDefinition() + "</td></tr>"
+    }
+    display = display + "</table>"
+    return display
+}
+
+function createPropBankTableForMultipleSynsets(synsets){
+    let display = "<table> <tr> <th>Id</th> <th>Definition</th> <th>Arg</th> <th>Function</th> <th>Description</th> </tr>";
+    for (let synSet of synsets) {
+        let frameSet = turkishPropBank.getFrameSet(synSet.getId())
+        if (frameSet !== undefined && frameSet !== null) {
+            for (let arg of frameSet.getFramesetArguments()) {
+                display = display + "<tr><td>" + synSet.getId() + "</td><td>" + synSet.getDefinition() + "</td><td>" + arg.getArgumentType() + "</td><td>" + arg.getFunction() + "</td><td>" + arg.getDefinition() + "</td></tr>"
+            }
+        }
+    }
+    display = display + "</table>"
+    return display
+}
+
 app.use(express.json());
 app.use(helmet());
 
@@ -352,6 +376,21 @@ app.get("/turkish-framenet-verb-id-search/:input", (req, res) => {
     const verbId = req.params.input;
     let frames = frameNet.getFrames(verbId)
     let display = createTableOfFrames(frames)
+    const result = {verbId, display};
+    res.json(result);
+});
+
+app.get("/turkish-propbank-verb-search/:input", (req, res) => {
+    const verbName = req.params.input;
+    let synsets = turkishWordNet.getSynSetsWithLiteral(verbName)
+    let display = createPropBankTableForMultipleSynsets(synsets);
+    const result = {verbName, display};
+    res.json(result);
+});
+
+app.get("/turkish-propbank-verb-id-search/:input", (req, res) => {
+    const verbId = req.params.input;
+    let display = createPropBankTable(verbId);
     const result = {verbId, display};
     res.json(result);
 });
