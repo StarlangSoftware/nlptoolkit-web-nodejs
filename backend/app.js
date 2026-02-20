@@ -178,4 +178,24 @@ if (posTagButton) {
         document.getElementById("posTagResult").innerHTML = data.display;
     });
 }
+let asciifierButton = document.getElementById('asciifier');
+if (asciifierButton) {
+    asciifierButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('sentence').value;
+        const res = await fetch(`/asciifier/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("asciifierResult").innerHTML = data.display;
+    });
+}
+let deasciifierButton = document.getElementById('deasciifier');
+if (deasciifierButton) {
+    deasciifierButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('sentence').value;
+        const res = await fetch(`/deasciifier/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("deasciifierResult").innerHTML = data.display;
+    });
+}
 

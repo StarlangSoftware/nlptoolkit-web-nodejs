@@ -535,3 +535,17 @@ app.get("/pos-tag/:input", (req, res) => {
     const result = {sentence, display};
     res.json(result);
 });
+
+app.get("/asciifier/:input", (req, res) => {
+    const sentence = req.params.input;
+    let display = asciifier.asciify(new Sentence(sentence)).toWords()
+    const result = {sentence, display};
+    res.json(result);
+});
+
+app.get("/deasciifier/:input", (req, res) => {
+    const sentence = req.params.input;
+    let display = deasciifier.deasciify(new Sentence(sentence)).toWords()
+    const result = {sentence, display};
+    res.json(result);
+});
