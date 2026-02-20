@@ -198,4 +198,14 @@ if (deasciifierButton) {
         document.getElementById("deasciifierResult").innerHTML = data.display;
     });
 }
+let spellCheckButton = document.getElementById('spellCheck');
+if (spellCheckButton) {
+    spellCheckButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('sentence').value;
+        const res = await fetch(`/spell-check/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("spellCheckResult").innerHTML = data.display;
+    });
+}
 

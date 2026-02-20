@@ -259,6 +259,23 @@ function createPosTableForSentence(sentence){
     return display
 }
 
+function createSpellCheckTable(sentence){
+    let s = new Sentence(sentence);
+    let spellCheckedSentence = simpleSpellChecker.spellCheck(s);
+    let display = "<table> <tr> <th>Word</th> <th>Correct</th> </tr>";
+    for (let i = 0; i < spellCheckedSentence.wordCount(); i++) {
+        display = display + "<tr><td>" + s.getWord(i).getName() + "</td>"
+        if (s.getWord(i).getName() !== spellCheckedSentence.getWord(i).getName()) {
+            display = display + "<td style=\"color:Red;\">" + spellCheckedSentence.getWord(i).getName() + "</td>"
+        } else {
+            display = display + "<td>" + s.getWord(i).getName() + "</td>"
+        }
+        display = display + "</tr>"
+    }
+    display = display + "</table>"
+    return display
+}
+
 app.use(express.json());
 app.use(helmet());
 
@@ -546,6 +563,13 @@ app.get("/asciifier/:input", (req, res) => {
 app.get("/deasciifier/:input", (req, res) => {
     const sentence = req.params.input;
     let display = deasciifier.deasciify(new Sentence(sentence)).toWords()
+    const result = {sentence, display};
+    res.json(result);
+});
+
+app.get("/spell-check/:input", (req, res) => {
+    const sentence = req.params.input;
+    let display = createSpellCheckTable(sentence);
     const result = {sentence, display};
     res.json(result);
 });
