@@ -118,4 +118,34 @@ if (turkishWordNetIdSearchButton) {
         document.getElementById("turkishWordNetResult").innerHTML = data.display;
     });
 }
+let englishWordNetWordSearchButton = document.getElementById('englishWordNetWordSearch');
+if (englishWordNetWordSearchButton) {
+    englishWordNetWordSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('englishWordNetWord').value;
+        const res = await fetch(`/english-wordnet-word-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("englishWordNetResult").innerHTML = data.display;
+    });
+}
+let englishWordNetSynonymSearchButton = document.getElementById('englishWordNetSynonymSearch');
+if (englishWordNetSynonymSearchButton) {
+    englishWordNetSynonymSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('englishWordNetSynonym').value;
+        const res = await fetch(`/english-wordnet-synonym-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("englishWordNetResult").innerHTML = data.display;
+    });
+}
+let englishWordNetIdSearchButton = document.getElementById('englishWordNetIdSearch');
+if (englishWordNetIdSearchButton) {
+    englishWordNetIdSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('englishWordNetSynSetId').value;
+        const res = await fetch(`/english-wordnet-id-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("englishWordNetResult").innerHTML = data.display;
+    });
+}
 

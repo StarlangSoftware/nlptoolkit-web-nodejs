@@ -440,3 +440,24 @@ app.get("/turkish-wordnet-id-search/:input", (req, res) => {
     const result = {synSetId, display};
     res.json(result);
 });
+
+app.get("/english-wordnet-word-search/:input", (req, res) => {
+    const word = req.params.input;
+    let display = createTableForWordSearch(word, englishWordNet);
+    const result = {word, display};
+    res.json(result);
+});
+
+app.get("/english-wordnet-synonym-search/:input", (req, res) => {
+    const synonymWord = req.params.input;
+    let display = createTableForSynonymSearch(synonymWord, englishWordNet);
+    const result = {synonymWord, display};
+    res.json(result);
+});
+
+app.get("/english-wordnet-id-search/:input", (req, res) => {
+    const synSetId = req.params.input;
+    let display = createTableForIdSearch(synSetId, englishWordNet);
+    const result = {synSetId, display};
+    res.json(result);
+});
