@@ -206,6 +206,42 @@ function createPropBankTableForMultipleSynsets(synsets){
     return display
 }
 
+function createPredicateTable(predicateName){
+    let display = "<table> <tr> <th>Id</th> <th>Name</th> <th>Descr</th> <th>f</th> <th>n</th> </tr>";
+    let predicate = englishPropBank.getPredicate(predicateName)
+    if (predicate !== undefined) {
+        for (let i = 0; i < predicate.size(); i++) {
+            let roleSet = predicate.getRoleSet(i)
+            for (let j = 0; j < roleSet.size(); j++) {
+                display = display + "<tr><td>" + roleSet.getId() + "</td><td>" + roleSet.getName() + "</td>"
+                let role = roleSet.getRole(j)
+                display = display + "<td>" + role.getDescription() + "</td><td>" + role.getF() + "</td><td>" + role.getN() + "</td></tr>"
+            }
+        }
+    }
+    display = display + "</table>"
+    return display
+}
+
+function createRoleSetTable(roleSetName){
+    let display = "<table> <tr> <th>Descr</th> <th>f</th> <th>n</th> </tr>";
+    for (let lemma of englishPropBank.getLemmaList()) {
+        let predicate = englishPropBank.getPredicate(lemma)
+        for (let i = 0; i < predicate.size(); i++) {
+            let roleSet = predicate.getRoleSet(i)
+            if (roleSet.getId() === roleSetName){
+                display = roleSet.getName() + "<br>" + display;
+                for (let j = 0; j < roleSet.size(); j++) {
+                    let role = roleSet.getRole(j)
+                    display = display + "<tr><td>" + role.getDescription() + "</td><td>" + role.getF() + "</td><td>" + role.getN() + "</td></tr>"
+                }
+            }
+        }
+    }
+    display = display + "</table>"
+    return display
+}
+
 app.use(express.json());
 app.use(helmet());
 
@@ -459,5 +495,19 @@ app.get("/english-wordnet-id-search/:input", (req, res) => {
     const synSetId = req.params.input;
     let display = createTableForIdSearch(synSetId, englishWordNet);
     const result = {synSetId, display};
+    res.json(result);
+});
+
+app.get("/english-propbank-predicate-search/:input", (req, res) => {
+    const predicateName = req.params.input;
+    let display = createPredicateTable(predicateName);
+    const result = {predicateName, display};
+    res.json(result);
+});
+
+app.get("/english-propbank-roleset-search/:input", (req, res) => {
+    const roleSetId = req.params.input;
+    let display = createRoleSetTable(roleSetId);
+    const result = {roleSetId, display};
     res.json(result);
 });

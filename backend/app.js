@@ -148,4 +148,24 @@ if (englishWordNetIdSearchButton) {
         document.getElementById("englishWordNetResult").innerHTML = data.display;
     });
 }
+let englishPredicateSearchButton = document.getElementById('englishPredicateSearch');
+if (englishPredicateSearchButton) {
+    englishPredicateSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('predicateName').value;
+        const res = await fetch(`/english-propbank-predicate-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("englishPropBankResult").innerHTML = data.display;
+    });
+}
+let englishRoleSetSearchButton = document.getElementById('englishRoleSetSearch');
+if (englishRoleSetSearchButton) {
+    englishRoleSetSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('roleSetId').value;
+        const res = await fetch(`/english-propbank-roleset-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("englishPropBankResult").innerHTML = data.display;
+    });
+}
 
