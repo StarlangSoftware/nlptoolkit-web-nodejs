@@ -3,7 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import {TxtDictionary} from "nlptoolkit-dictionary";
+import {Pos, TxtDictionary} from "nlptoolkit-dictionary";
 import {TxtWord} from "nlptoolkit-dictionary";
 import {FramesetList} from "nlptoolkit-propbank";
 import {PredicateList} from "nlptoolkit-propbank";
@@ -28,7 +28,7 @@ const PORT = 3000;
 
 const turkishDictionary = new TxtDictionary();
 const fsm = new FsmMorphologicalAnalyzer()
-const asciifier = new SimpleAsciifier(fsm)
+const asciifier = new SimpleAsciifier()
 const deasciifier = new SimpleDeasciifier(fsm)
 const disambiguator = new LongestRootFirstDisambiguation()
 const simpleSpellChecker = new SimpleSpellChecker(fsm)
@@ -69,7 +69,7 @@ function createTableForWordSearch(word, wordNet) {
     for (let synSet of synSetList) {
         for (let j = 0; j < synSet.getSynonym().literalSize(); j++) {
             if (synSet.getSynonym().getLiteral(j).getName() === word) {
-                display = display + "<tr><td>" + synSet.getId() + "</td><td>" + synSet.getPos() + "</td><td>" + synSet.getDefinition() + "</td><td>"
+                display = display + "<tr><td>" + synSet.getId() + "</td><td>" + Pos[synSet.getPos()] + "</td><td>" + synSet.getDefinition() + "</td><td>"
                 display = createSynonym(display, j, synSet) + "</td></tr>"
                 break;
             }
@@ -398,18 +398,7 @@ app.get("/turkish-propbank-verb-id-search/:input", (req, res) => {
 app.get("/sentinet-word-search/:input", (req, res) => {
     const word = req.params.input;
     let sentiLiteral = sentiLiteralNet.getSentiLiteral(word)
-    let display
-    switch (sentiLiteral.getPolarity()){
-        case PolarityType.NEGATIVE:
-            display = "NEGATIVE";
-            break;
-        case PolarityType.POSITIVE:
-            display = "POSITIVE";
-            break;
-        case PolarityType.NEUTRAL:
-            display = "NEUTRAL";
-            break;
-    }
+    let display = PolarityType[sentiLiteral.getPolarity()];
     const result = {word, display};
     res.json(result);
 });
@@ -417,17 +406,36 @@ app.get("/sentinet-word-search/:input", (req, res) => {
 app.get("/sentinet-id-search/:input", (req, res) => {
     const synSetId = req.params.input;
     let sentiSynSet = sentiNet.getSentiSynSet(synSetId)
-    let display
-    switch (sentiSynSet.getPolarity()){
-        case PolarityType.NEGATIVE:
-            display = "NEGATIVE";
-            break;
-        case PolarityType.POSITIVE:
-            display = "POSITIVE";
-            break;
-        case PolarityType.NEUTRAL:
-            display = "NEUTRAL";
-            break;
+    let display = PolarityType[sentiSynSet.getPolarity()];
+    const result = {synSetId, display};
+    res.json(result);
+});
+
+app.get("/turkish-wordnet-word-search/:input", (req, res) => {
+    const word = req.params.input;
+    let display = "<h1>2020</h1><br>" + createTableForWordSearch(word, turkishWordNet);
+    for (let i = 0; i < years.length; i++) {
+        display = display + "<br><h1>" + years[i] + "</h1><br>" + createTableForWordSearch(word, turkishWordNets[i]);
+    }
+    const result = {word, display};
+    res.json(result);
+});
+
+app.get("/turkish-wordnet-synonym-search/:input", (req, res) => {
+    const synonymWord = req.params.input;
+    let display = "<h1>2020</h1><br>" + createTableForSynonymSearch(synonymWord, turkishWordNet);
+    for (let i = 0; i < years.length; i++) {
+        display = display + "<br><h1>" + years[i] + "</h1><br>" + createTableForSynonymSearch(synonymWord, turkishWordNets[i]);
+    }
+    const result = {synonymWord, display};
+    res.json(result);
+});
+
+app.get("/turkish-wordnet-id-search/:input", (req, res) => {
+    const synSetId = req.params.input;
+    let display = "<h1>2020</h1><br>" + createTableForIdSearch(synSetId, turkishWordNet);
+    for (let i = 0; i < years.length; i++) {
+        display = display + "<br><h1>" + years[i] + "</h1><br>" + createTableForIdSearch(synSetId, turkishWordNets[i]);
     }
     const result = {synSetId, display};
     res.json(result);
