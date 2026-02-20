@@ -7,7 +7,7 @@ import {TxtDictionary} from "nlptoolkit-dictionary";
 import {TxtWord} from "nlptoolkit-dictionary";
 import {FramesetList} from "nlptoolkit-propbank";
 import {PredicateList} from "nlptoolkit-propbank";
-import {SentiLiteralNet, SentiNet} from "nlptoolkit-sentinet";
+import {PolarityType, SentiLiteralNet, SentiNet} from "nlptoolkit-sentinet";
 import {FsmMorphologicalAnalyzer} from "nlptoolkit-morphologicalanalysis";
 import {SimpleAsciifier} from "nlptoolkit-deasciifier";
 import {SimpleDeasciifier} from "nlptoolkit-deasciifier";
@@ -392,5 +392,43 @@ app.get("/turkish-propbank-verb-id-search/:input", (req, res) => {
     const verbId = req.params.input;
     let display = createPropBankTable(verbId);
     const result = {verbId, display};
+    res.json(result);
+});
+
+app.get("/sentinet-word-search/:input", (req, res) => {
+    const word = req.params.input;
+    let sentiLiteral = sentiLiteralNet.getSentiLiteral(word)
+    let display
+    switch (sentiLiteral.getPolarity()){
+        case PolarityType.NEGATIVE:
+            display = "NEGATIVE";
+            break;
+        case PolarityType.POSITIVE:
+            display = "POSITIVE";
+            break;
+        case PolarityType.NEUTRAL:
+            display = "NEUTRAL";
+            break;
+    }
+    const result = {word, display};
+    res.json(result);
+});
+
+app.get("/sentinet-id-search/:input", (req, res) => {
+    const synSetId = req.params.input;
+    let sentiSynSet = sentiNet.getSentiSynSet(synSetId)
+    let display
+    switch (sentiSynSet.getPolarity()){
+        case PolarityType.NEGATIVE:
+            display = "NEGATIVE";
+            break;
+        case PolarityType.POSITIVE:
+            display = "POSITIVE";
+            break;
+        case PolarityType.NEUTRAL:
+            display = "NEUTRAL";
+            break;
+    }
+    const result = {synSetId, display};
     res.json(result);
 });

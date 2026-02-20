@@ -68,3 +68,24 @@ if (propBankIdSearchButton) {
         document.getElementById("propBankResult").innerHTML = data.display;
     });
 }
+let sentiNetWordSearchButton = document.getElementById('sentiNetWordSearch');
+if (sentiNetWordSearchButton) {
+    sentiNetWordSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('sentiNetWord').value;
+        const res = await fetch(`/sentinet-word-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("sentiNetResult").innerHTML = data.display;
+    });
+}
+let sentiNetIdSearchButton = document.getElementById('sentiNetIdSearch');
+if (sentiNetIdSearchButton) {
+    sentiNetIdSearchButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('sentiNetSynSetId').value;
+        const res = await fetch(`/sentinet-id-search/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("sentiNetResult").innerHTML = data.display;
+    });
+}
+
