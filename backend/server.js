@@ -14,11 +14,12 @@ import {SimpleDeasciifier} from "nlptoolkit-deasciifier";
 import {SimpleSpellChecker} from "nlptoolkit-spellchecker";
 import {WordNet} from "nlptoolkit-wordnet";
 import {LongestRootFirstDisambiguation} from "nlptoolkit-morphologicaldisambiguation";
-import {NaivePosTagger} from "nlptoolkit-postagger";
+import {NaivePosTagger, PosTaggedWord} from "nlptoolkit-postagger";
 import {PosTaggedCorpus} from "nlptoolkit-postagger";
 import {FrameNet} from "nlptoolkit-framenet";
 import path from "path";
 import { fileURLToPath } from "url";
+import {Sentence} from "nlptoolkit-corpus";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -236,6 +237,22 @@ function createRoleSetTable(roleSetName){
                     display = display + "<tr><td>" + role.getDescription() + "</td><td>" + role.getF() + "</td><td>" + role.getN() + "</td></tr>"
                 }
             }
+        }
+    }
+    display = display + "</table>"
+    return display
+}
+
+function createPosTableForSentence(sentence){
+    let display = "<table> <tr> <th>Word</th> <th>Tag(s)</th> </tr>";
+    let s = new Sentence(sentence.toLowerCase())
+    let annotatedSentence = posTagger.posTag(s)
+    for (let i = 0; i < annotatedSentence.wordCount(); i++) {
+        let posTaggedWord = annotatedSentence.getWord(i)
+        if (posTaggedWord instanceof PosTaggedWord){
+            display = display + "<tr><td>" + posTaggedWord.getName() + "</td><td>" + posTaggedWord.getTag() + "</td></tr>"
+        } else {
+            display = display + "<tr><td>" + posTaggedWord.getName() + "</td><td>UNK</td></tr>"
         }
     }
     display = display + "</table>"
@@ -509,5 +526,12 @@ app.get("/english-propbank-roleset-search/:input", (req, res) => {
     const roleSetId = req.params.input;
     let display = createRoleSetTable(roleSetId);
     const result = {roleSetId, display};
+    res.json(result);
+});
+
+app.get("/pos-tag/:input", (req, res) => {
+    const sentence = req.params.input;
+    let display = createPosTableForSentence(sentence);
+    const result = {sentence, display};
     res.json(result);
 });

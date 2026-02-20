@@ -168,4 +168,14 @@ if (englishRoleSetSearchButton) {
         document.getElementById("englishPropBankResult").innerHTML = data.display;
     });
 }
+let posTagButton = document.getElementById('posTag');
+if (posTagButton) {
+    posTagButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('englishSentence').value;
+        const res = await fetch(`/pos-tag/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("posTagResult").innerHTML = data.display;
+    });
+}
 
