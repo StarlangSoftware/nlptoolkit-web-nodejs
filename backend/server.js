@@ -276,6 +276,38 @@ function createSpellCheckTable(sentence){
     return display
 }
 
+function createMorphologicalAnalysisTable(sentence){
+    let s = new Sentence(sentence);
+    let analyzedSentence = fsm.morphologicalAnalysisFromSentence(s);
+    let display = "<table> <tr> <th>Word</th> <th>Morphological Analyses</th> </tr>";
+    for (let i = 0; i < s.wordCount(); i++) {
+        display = display + "<tr><td>" + s.getWord(i).getName() + "</td><td>"
+        let fsmParseList = analyzedSentence[i]
+        for (let j = 0; j < fsmParseList.size(); j++) {
+            if (j !== 0){
+                display = display + " "
+            }
+            display = display + fsmParseList.getFsmParse(j).getFsmParseTransitionList()
+        }
+        display = display + "</td></tr>"
+    }
+    display = display + "</table>"
+    return display
+}
+
+function createMorphologicalDisambiguationTable(sentence){
+    let s = new Sentence(sentence);
+    let analyzedSentence = fsm.robustMorphologicalAnalysisFromSentence(s);
+    let disambiguatedSentence = disambiguator.disambiguate(analyzedSentence)
+    let display = "<table> <tr> <th>Word</th> <th>Morphological Analysis</th> </tr>";
+    for (let i = 0; i < disambiguatedSentence.length; i++) {
+        display = display + "<tr><td>" + s.getWord(i).getName() + "</td>"
+        display = display + "<td>" + disambiguatedSentence[i].getFsmParseTransitionList() + "</td></tr>"
+    }
+    display = display + "</table>"
+    return display
+}
+
 app.use(express.json());
 app.use(helmet());
 
@@ -570,6 +602,20 @@ app.get("/deasciifier/:input", (req, res) => {
 app.get("/spell-check/:input", (req, res) => {
     const sentence = req.params.input;
     let display = createSpellCheckTable(sentence);
+    const result = {sentence, display};
+    res.json(result);
+});
+
+app.get("/morphological-analysis/:input", (req, res) => {
+    const sentence = req.params.input;
+    let display = createMorphologicalAnalysisTable(sentence);
+    const result = {sentence, display};
+    res.json(result);
+});
+
+app.get("/morphological-disambiguation/:input", (req, res) => {
+    const sentence = req.params.input;
+    let display = createMorphologicalDisambiguationTable(sentence);
     const result = {sentence, display};
     res.json(result);
 });

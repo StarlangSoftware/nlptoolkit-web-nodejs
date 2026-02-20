@@ -208,4 +208,24 @@ if (spellCheckButton) {
         document.getElementById("spellCheckResult").innerHTML = data.display;
     });
 }
+let morphologicalAnalysisButton = document.getElementById('morphologicalAnalysis');
+if (morphologicalAnalysisButton) {
+    morphologicalAnalysisButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('sentence').value;
+        const res = await fetch(`/morphological-analysis/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("morphologicalAnalysisResult").innerHTML = data.display;
+    });
+}
+let morphologicalDisambiguationButton = document.getElementById('morphologicalDisambiguation');
+if (morphologicalDisambiguationButton) {
+    morphologicalDisambiguationButton.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('sentence').value;
+        const res = await fetch(`/morphological-disambiguation/${encodeURIComponent(input)}`);
+        const data = await res.json();
+        document.getElementById("morphologicalDisambiguationResult").innerHTML = data.display;
+    });
+}
 
